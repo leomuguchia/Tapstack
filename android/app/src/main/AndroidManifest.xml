@@ -1,21 +1,99 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
   <uses-permission android:name="android.permission.INTERNET"/>
-  <!-- OPTIONAL PERMISSIONS, REMOVE WHATEVER YOU DO NOT NEED -->
   <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
   <uses-permission android:name="android.permission.VIBRATE"/>
-  <!-- These require runtime permissions on M -->
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-  <!-- END OPTIONAL PERMISSIONS -->
+  
+  <!-- For phone calls and SMS -->
+  <uses-permission android:name="android.permission.CALL_PHONE"/>
+  <uses-permission android:name="android.permission.SEND_SMS"/>
 
   <queries>
-    <!-- Support checking for http(s) links via the Linking API -->
+    <!-- General web URLs -->
     <intent>
       <action android:name="android.intent.action.VIEW" />
       <category android:name="android.intent.category.BROWSABLE" />
       <data android:scheme="https" />
     </intent>
+    
+    <!-- WhatsApp -->
+    <intent>
+      <action android:name="android.intent.action.VIEW" />
+      <data android:scheme="whatsapp" />
+    </intent>
+    <intent>
+      <action android:name="android.intent.action.VIEW" />
+      <data android:scheme="https" android:host="wa.me" />
+    </intent>
+    
+    <!-- Instagram -->
+    <intent>
+      <action android:name="android.intent.action.VIEW" />
+      <data android:scheme="instagram" />
+    </intent>
+    
+    <!-- Spotify -->
+    <intent>
+      <action android:name="android.intent.action.VIEW" />
+      <data android:scheme="spotify" />
+    </intent>
+    
+    <!-- Phone -->
+    <intent>
+      <action android:name="android.intent.action.VIEW" />
+      <data android:scheme="tel" />
+    </intent>
+    <intent>
+      <action android:name="android.intent.action.DIAL" />
+      <data android:scheme="tel" />
+    </intent>
+    
+    <!-- SMS -->
+    <intent>
+      <action android:name="android.intent.action.VIEW" />
+      <data android:scheme="sms" />
+    </intent>
+    
+    <!-- Email -->
+    <intent>
+      <action android:name="android.intent.action.VIEW" />
+      <data android:scheme="mailto" />
+    </intent>
+    
+    <!-- Google Maps -->
+    <intent>
+      <action android:name="android.intent.action.VIEW" />
+      <data android:scheme="geo" />
+    </intent>
+    <intent>
+      <action android:name="android.intent.action.VIEW" />
+      <data android:scheme="google.navigation" />
+    </intent>
+    
+    <!-- Camera (for Instagram story camera) -->
+    <intent>
+      <action android:name="android.media.action.IMAGE_CAPTURE" />
+    </intent>
+    
+    <!-- Calendar -->
+    <intent>
+      <action android:name="android.intent.action.INSERT" />
+      <data android:mimeType="vnd.android.cursor.dir/event" />
+    </intent>
+    
+    <!-- Package visibility for common apps -->
+    <package android:name="com.google.android.apps.maps" />
+    <package android:name="com.whatsapp" />
+    <package android:name="com.instagram.android" />
+    <package android:name="com.spotify.music" />
+    <package android:name="com.google.android.gm" />
+    <package android:name="com.android.mms" />
+    <package android:name="com.android.contacts" />
+    <package android:name="com.android.camera" />
+    <package android:name="com.google.android.calendar" />
+    <package android:name="com.google.android.keep" />
   </queries>
 
   <application android:name=".MainApplication" android:label="@string/app_name" android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher_round" android:allowBackup="false" android:theme="@style/AppTheme" android:supportsRtl="true">
