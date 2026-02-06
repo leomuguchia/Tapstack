@@ -8,7 +8,7 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import { useTheme } from '../context/ThemeContext';
 import { useSelector, useDispatch } from 'react-redux';
@@ -359,7 +359,7 @@ export default function NewShortcutScreen({ navigation }) {
               Run this shortcut by tapping it
             </Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color={theme.textMuted} />
+          <Ionicons name="chevron-forward-outline" size={20} color={theme.textMuted} />
         </View>
       </ScrollView>
     </View>

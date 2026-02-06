@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 
 export default function ActionPickerItem({
@@ -43,8 +43,8 @@ export default function ActionPickerItem({
         </Text>
       </View>
 
-      <MaterialCommunityIcons
-        name="chevron-forward"
+      <Ionicons
+        name="chevron-forward-outline"
         size={18}
         color={theme.textMuted}
       />

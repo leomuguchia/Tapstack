@@ -27,7 +27,7 @@ export default function ActionItem({
         },
       ]}
     >
-      <MaterialCommunityIcons
+      <Ionicons
         name="reorder-two"
         size={20}
         color={theme.textMuted}
@@ -35,7 +35,7 @@ export default function ActionItem({
       />
 
       <View style={[styles.iconBox, { backgroundColor: color + '22' }]}>
-        <MaterialCommunityIcons name={icon} size={18} color={color} />
+        <Ionicons name={icon} size={18} color={color} />
       </View>
 
       <View style={styles.text}>

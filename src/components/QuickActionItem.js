@@ -26,7 +26,7 @@ export default function QuickActionItem({
       'call': 'phone',
       'camera': 'camera',
       'image': 'image',
-      'mail': 'email',
+      'mail': 'mail',
       'document-text': 'file-document',
       'calendar': 'calendar',
       'musical-notes': 'music',

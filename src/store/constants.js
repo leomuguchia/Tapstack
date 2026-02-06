@@ -126,7 +126,7 @@ const ACTION_CATALOG = [
     name: 'Send Email',
     description: 'Compose and send email',
     category: ACTION_CATEGORIES.COMMUNICATION,
-    icon: 'email',
+    icon: 'mail',
     color: '#EC4899',
     requiredCapabilities: ['email_api'],
     platformSupport: ['ios', 'android'],
