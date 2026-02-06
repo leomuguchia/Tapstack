@@ -74,28 +74,26 @@ android {
 
     buildTypes {
         debug {
-            signingConfig signingConfigs.debug
             minifyEnabled false
         }
 
         release {
-            signingConfig signingConfigs.debug
-            minifyEnabled enableMinifyInReleaseBuilds
-
-            def enableShrinkResources =
-                    (findProperty("android.enableShrinkResourcesInReleaseBuilds") ?: "false")
-                            .toBoolean()
-            shrinkResources enableShrinkResources
-
-            def enablePngCrunch =
-                    (findProperty("android.enablePngCrunchInReleaseBuilds") ?: "true")
-                            .toBoolean()
-            crunchPngs enablePngCrunch
+            minifyEnabled true
+            shrinkResources false
 
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+    }
+
+    splits {
+        abi {
+            enable false
+        }
+        density {
+            enable false
         }
     }
 

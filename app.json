@@ -5,6 +5,11 @@
     "version": "1.0.0",
     "plugins": [
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "ca3e0957-49fa-44e5-bd63-73c50a1f2c46"
+      }
+    }
   }
 }
