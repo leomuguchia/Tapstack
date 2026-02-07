@@ -23,6 +23,54 @@ export const productivityActions = {
     await Linking.openURL(formattedUrl);
     return { executed: true, url: formattedUrl };
   },
+
+  async executeOpenApp(parameters) {
+  const { deeplink } = parameters;
+  
+  if (!deeplink) {
+    throw new Error('Deeplink is required to open an app');
+  }
+  
+  const validPrefixes = [
+    'http://', 'https://', 'mailto:', 'tel:', 'sms:', 
+    'instagram://', 'twitter://', 'facebook://', 'whatsapp://',
+    'spotify:', 'youtube://', 'maps://', 'geo:',
+    'calshow:',
+    'calendar:', 
+    'netflix://', 
+    'facebook://', 'messenger://', 'telegram://', 'slack://',
+    'whatsapp://', 'discord://', 'reddit://', 'tiktok://',
+    'zoom://', 'teams://', 'gmail://', 'outlook://',
+    'photos://', 'camera://', 'notes://', 'reminders://'
+  ];
+  
+  // Also accept custom scheme patterns (like com.google.calendar)
+  const customSchemePattern = /^[a-zA-Z0-9_]+:/;
+  
+  const isValid = validPrefixes.some(prefix => deeplink.startsWith(prefix)) ||
+                  customSchemePattern.test(deeplink);
+  
+  if (!isValid) {
+    throw new Error(`Invalid deeplink format. Valid formats:\n${validPrefixes.join('\n')}`);
+  }
+  
+  try {
+    const supported = await Linking.canOpenURL(deeplink);
+    
+    if (!supported) {
+      throw new Error(`App not installed or can't handle this deeplink: ${deeplink}`);
+    }
+    
+    await Linking.openURL(deeplink);
+    return { 
+      executed: true, 
+      message: `Opened app with deeplink: ${deeplink}`,
+      deeplink: deeplink 
+    };
+  } catch (error) {
+    throw new Error(`Failed to open app: ${error.message}`);
+  }
+  },
   
   async executeMapsOpen(parameters) {
     const { address, latitude, longitude, query } = parameters;

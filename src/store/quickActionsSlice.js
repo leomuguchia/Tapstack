@@ -1,333 +1,16 @@
 // store/slices/quickActionsSlice.js
-import { createSlice, createSelector } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 import { createSelector as createReselectSelector } from 'reselect';
+import { createQuickActionObject, buildActionUrl, addToRecentList } from './utils';
+import { DEFAULT_QUICK_ACTIONS } from './defaults';
+import { COMMON_APP_ACTIONS } from './constants';
 import { generateId } from '../utils/idGen';
 
-// Common app actions that users can add
-const COMMON_APP_ACTIONS = [
-  {
-    id: 'maps_navigation',
-    title: 'Navigate',
-    description: 'Open Maps with destination',
-    icon: 'navigate',
-    color: '#34A853',
-    appName: 'Google Maps',
-    category: 'navigation',
-    actionType: 'deep_link',
-    config: {
-      deepLink: 'google.navigation:q={destination}',
-      parameters: [
-        {
-          name: 'destination',
-          type: 'text',
-          label: 'Destination',
-          required: true,
-          placeholder: 'Enter address or place'
-        }
-      ]
-    }
-  },
-  {
-    id: 'maps_directions',
-    title: 'Directions',
-    description: 'Get directions between two points',
-    icon: 'map',
-    color: '#4285F4',
-    appName: 'Google Maps',
-    category: 'navigation',
-    actionType: 'deep_link',
-    config: {
-      deepLink: 'https://www.google.com/maps/dir/{origin}/{destination}',
-      parameters: [
-        {
-          name: 'origin',
-          type: 'text',
-          label: 'From',
-          required: false,
-          placeholder: 'Starting point (optional)'
-        },
-        {
-          name: 'destination',
-          type: 'text',
-          label: 'To',
-          required: true,
-          placeholder: 'Destination'
-        }
-      ]
-    }
-  },
-  {
-    id: 'whatsapp_new_chat',
-    title: 'New Chat',
-    description: 'Start new WhatsApp chat',
-    icon: 'chatbubble',
-    color: '#25D366',
-    appName: 'WhatsApp',
-    category: 'communication',
-    actionType: 'deep_link',
-    config: {
-      deepLink: 'https://wa.me/{phoneNumber}?text={message}',
-      parameters: [
-        {
-          name: 'phoneNumber',
-          type: 'text',
-          label: 'Phone Number',
-          required: true,
-          placeholder: 'e.g., 1234567890'
-        },
-        {
-          name: 'message',
-          type: 'text',
-          label: 'Message',
-          required: false,
-          placeholder: 'Hi there! (optional)'
-        }
-      ]
-    }
-  },
-  {
-    id: 'whatsapp_call',
-    title: 'WhatsApp Call',
-    description: 'Call via WhatsApp',
-    icon: 'phone-dial',
-    color: '#075E54',
-    appName: 'WhatsApp',
-    category: 'communication',
-    actionType: 'deep_link',
-    config: {
-      deepLink: 'https://wa.me/{phoneNumber}?text=Call',
-      parameters: [
-        {
-          name: 'phoneNumber',
-          type: 'text',
-          label: 'Phone Number',
-          required: true,
-          placeholder: 'e.g., 1234567890'
-        }
-      ]
-    }
-  },
-  {
-    id: 'instagram_story',
-    title: 'Create Story',
-    description: 'Open Instagram story camera',
-    icon: 'camera',
-    color: '#E4405F',
-    appName: 'Instagram',
-    category: 'social',
-    actionType: 'deep_link',
-    config: {
-      deepLink: 'instagram://story-camera',
-      parameters: []
-    }
-  },
-  {
-    id: 'instagram_post',
-    title: 'Create Post',
-    description: 'Open Instagram post creator',
-    icon: 'image',
-    color: '#E1306C',
-    appName: 'Instagram',
-    category: 'social',
-    actionType: 'deep_link',
-    config: {
-      deepLink: 'instagram://create',
-      parameters: []
-    }
-  },
-  {
-    id: 'phone_call',
-    title: 'Make Call',
-    description: 'Make a phone call',
-    icon: 'call',
-    color: '#25D366',
-    appName: 'Phone',
-    category: 'communication',
-    actionType: 'deep_link',
-    config: {
-      deepLink: 'tel:{phoneNumber}',
-      parameters: [
-        {
-          name: 'phoneNumber',
-          type: 'text',
-          label: 'Phone Number',
-          required: true,
-          placeholder: 'e.g., 1234567890'
-        }
-      ]
-    }
-  },
-  {
-    id: 'sms_send',
-    title: 'Send SMS',
-    description: 'Send text message',
-    icon: 'chatbox',
-    color: '#34B7F1',
-    appName: 'Messages',
-    category: 'communication',
-    actionType: 'deep_link',
-    config: {
-      deepLink: 'sms:{phoneNumber}?body={message}',
-      parameters: [
-        {
-          name: 'phoneNumber',
-          type: 'text',
-          label: 'Phone Number',
-          required: true,
-          placeholder: 'e.g., 1234567890'
-        },
-        {
-          name: 'message',
-          type: 'text',
-          label: 'Message',
-          required: true,
-          placeholder: 'Type your message'
-        }
-      ]
-    }
-  },
-  {
-    id: 'email_compose',
-    title: 'Compose Email',
-    description: 'Open email composer',
-    icon: 'mail',
-    color: '#EA4335',
-    appName: 'Gmail',
-    category: 'communication',
-    actionType: 'deep_link',
-    config: {
-      deepLink: 'mailto:{to}?subject={subject}&body={body}',
-      parameters: [
-        {
-          name: 'to',
-          type: 'text',
-          label: 'To',
-          required: true,
-          placeholder: 'recipient@example.com'
-        },
-        {
-          name: 'subject',
-          type: 'text',
-          label: 'Subject',
-          required: false,
-          placeholder: 'Email subject (optional)'
-        },
-        {
-          name: 'body',
-          type: 'text',
-          label: 'Body',
-          required: false,
-          placeholder: 'Email body (optional)'
-        }
-      ]
-    }
-  },
-  {
-    id: 'camera_open',
-    title: 'Open Camera',
-    description: 'Quick camera access',
-    icon: 'camera',
-    color: '#5856D6',
-    appName: 'Camera',
-    category: 'media',
-    actionType: 'deep_link',
-    config: {
-      deepLink: 'camera:',
-      parameters: []
-    }
-  },
-  {
-    id: 'notes_new',
-    title: 'New Note',
-    description: 'Create a quick note',
-    icon: 'document-text',
-    color: '#FF9500',
-    appName: 'Notes',
-    category: 'productivity',
-    actionType: 'deep_link',
-    config: {
-      deepLink: 'notes:create',
-      parameters: [
-        {
-          name: 'title',
-          type: 'text',
-          label: 'Title',
-          required: false,
-          placeholder: 'Note title (optional)'
-        },
-        {
-          name: 'content',
-          type: 'text',
-          label: 'Content',
-          required: false,
-          placeholder: 'Note content (optional)'
-        }
-      ]
-    }
-  },
-  {
-    id: 'calendar_event',
-    title: 'Add Event',
-    description: 'Create calendar event',
-    icon: 'calendar',
-    color: '#FF2D55',
-    appName: 'Calendar',
-    category: 'productivity',
-    actionType: 'deep_link',
-    config: {
-      deepLink: 'calshow:',
-      parameters: [
-        {
-          name: 'title',
-          type: 'text',
-          label: 'Event Title',
-          required: true,
-          placeholder: 'Meeting, Appointment, etc.'
-        },
-        {
-          name: 'date',
-          type: 'date',
-          label: 'Date',
-          required: false,
-          placeholder: 'Select date (optional)'
-        }
-      ]
-    }
-  },
-  {
-    id: 'spotify_play',
-    title: 'Play Music',
-    description: 'Play on Spotify',
-    icon: 'musical-notes',
-    color: '#1DB954',
-    appName: 'Spotify',
-    category: 'media',
-    actionType: 'deep_link',
-    config: {
-      deepLink: 'spotify:play',
-      parameters: [
-        {
-          name: 'playlist',
-          type: 'text',
-          label: 'Playlist/Album',
-          required: false,
-          placeholder: 'Search (optional)'
-        }
-      ]
-    }
-  }
-];
-
+// Initial state - note: we don't store favoriteQuickActions in state, it's derived
 const initialState = {
-  // Pre-defined app actions that users can choose from
   availableAppActions: COMMON_APP_ACTIONS,
-  
-  // User's configured quick actions
-  userQuickActions: [],
-  
-  // Recently used quick actions
-  recentQuickActions: [],
-  
+  userQuickActions: DEFAULT_QUICK_ACTIONS,
+  recentQuickActions: DEFAULT_QUICK_ACTIONS.slice(0, 2).map(action => action.id), // First 2 default actions
   status: 'idle',
   error: null
 };
@@ -336,13 +19,39 @@ const quickActionsSlice = createSlice({
   name: 'quickActions',
   initialState,
   reducers: {
-    // Add a new quick action with user configuration
+    // Create a new quick action from template
+    createQuickAction: (state, action) => {
+      const { actionId, name, icon, color, parameters } = action.payload;
+      
+      const baseAction = state.availableAppActions.find(a => a.id === actionId);
+      if (!baseAction) {
+        console.error(`Action template not found: ${actionId}`);
+        return;
+      }
+      
+      const newQuickAction = createQuickActionObject({
+        actionId,
+        name: name || baseAction.title,
+        description: baseAction.description,
+        icon: icon || baseAction.icon,
+        color: color || baseAction.color,
+        appName: baseAction.appName,
+        category: baseAction.category,
+        actionType: baseAction.actionType,
+        config: baseAction.config,
+        parameters: parameters || {},
+        isDefault: false
+      });
+      
+      state.userQuickActions.push(newQuickAction);
+      state.recentQuickActions = addToRecentList(state.recentQuickActions, newQuickAction.id);
+    },
+    
+    // Add a new quick action (compatibility with old code)
     addQuickAction: (state, action) => {
       const { actionId, name, icon, color, parameters } = action.payload;
       
-      // Find the base action template
       const baseAction = state.availableAppActions.find(a => a.id === actionId);
-      
       if (!baseAction) {
         console.error(`Action template not found: ${actionId}`);
         return;
@@ -365,11 +74,14 @@ const quickActionsSlice = createSlice({
           updatedAt: Date.now(),
           runCount: 0,
           lastRun: null,
-          favorite: false
-        }
+          favorite: false,
+          hidden: false
+        },
+        isDefault: false
       };
       
       state.userQuickActions.push(newQuickAction);
+      state.recentQuickActions = addToRecentList(state.recentQuickActions, newQuickAction.id);
     },
     
     // Update quick action
@@ -378,7 +90,7 @@ const quickActionsSlice = createSlice({
       const actionIndex = state.userQuickActions.findIndex(a => a.id === id);
       
       if (actionIndex >= 0) {
-        state.userQuickActions[actionIndex] = {
+        const updatedAction = {
           ...state.userQuickActions[actionIndex],
           ...updates,
           metadata: {
@@ -386,14 +98,31 @@ const quickActionsSlice = createSlice({
             updatedAt: Date.now()
           }
         };
+        
+        // If parameters were updated, rebuild the URL
+        if (updates.parameters && state.userQuickActions[actionIndex].config) {
+          const builtUrl = buildActionUrl(
+            state.userQuickActions[actionIndex], 
+            updates.parameters
+          );
+          // Store built URL in metadata for quick access
+          updatedAction.metadata.builtUrl = builtUrl;
+        }
+        
+        state.userQuickActions[actionIndex] = updatedAction;
       }
     },
     
     // Delete quick action
     deleteQuickAction: (state, action) => {
       const id = action.payload;
-      state.userQuickActions = state.userQuickActions.filter(a => a.id !== id);
-      state.recentQuickActions = state.recentQuickActions.filter(a => a !== id);
+      const quickAction = state.userQuickActions.find(a => a.id === id);
+      
+      // Only allow deletion of non-default actions
+      if (quickAction && !quickAction.isDefault) {
+        state.userQuickActions = state.userQuickActions.filter(a => a.id !== id);
+        state.recentQuickActions = state.recentQuickActions.filter(a => a !== id);
+      }
     },
     
     // Record quick action usage
@@ -407,14 +136,7 @@ const quickActionsSlice = createSlice({
         quickAction.metadata.lastRun = Date.now();
         quickAction.metadata.updatedAt = Date.now();
         
-        // Add to recent
-        state.recentQuickActions = state.recentQuickActions.filter(a => a !== id);
-        state.recentQuickActions.unshift(id);
-        
-        // Keep recent list manageable
-        if (state.recentQuickActions.length > 10) {
-          state.recentQuickActions.pop();
-        }
+        state.recentQuickActions = addToRecentList(state.recentQuickActions, id);
       }
     },
     
@@ -426,20 +148,36 @@ const quickActionsSlice = createSlice({
       if (actionIndex >= 0) {
         state.userQuickActions[actionIndex].metadata.favorite = 
           !state.userQuickActions[actionIndex].metadata.favorite;
+        state.userQuickActions[actionIndex].metadata.updatedAt = Date.now();
       }
     },
     
     // Reorder quick actions
     reorderQuickActions: (state, action) => {
       const { fromIndex, toIndex } = action.payload;
-      const [removed] = state.userQuickActions.splice(fromIndex, 1);
-      state.userQuickActions.splice(toIndex, 0, removed);
+      
+      // Make a copy to avoid mutating while iterating
+      const actions = [...state.userQuickActions];
+      const [removed] = actions.splice(fromIndex, 1);
+      actions.splice(toIndex, 0, removed);
+      
+      state.userQuickActions = actions;
     },
     
     // Reset quick actions
     resetQuickActions: (state) => {
-      state.userQuickActions = [];
-      state.recentQuickActions = [];
+      // Keep only default actions
+      const defaultActions = state.userQuickActions.filter(a => a.isDefault);
+      
+      return {
+        ...initialState,
+        userQuickActions: [
+          ...DEFAULT_QUICK_ACTIONS,
+          ...defaultActions.filter(defaultAction => 
+            !DEFAULT_QUICK_ACTIONS.some(da => da.id === defaultAction.id)
+          )
+        ]
+      };
     }
   }
 });
@@ -511,7 +249,44 @@ export const selectAvailableActionsByCategory = createReselectSelector(
   }
 );
 
+export const selectVisibleQuickActions = createReselectSelector(
+  [selectUserQuickActions],
+  (quickActions) => quickActions.filter(action => !action.metadata?.hidden)
+);
+
+export const selectCustomQuickActions = createReselectSelector(
+  [selectUserQuickActions],
+  (quickActions) => quickActions.filter(action => !action.isDefault)
+);
+
+export const selectDefaultQuickActions = createReselectSelector(
+  [selectUserQuickActions],
+  (quickActions) => quickActions.filter(action => action.isDefault)
+);
+
+// Additional utility selectors
+export const selectQuickActionsCount = createReselectSelector(
+  [selectUserQuickActions],
+  (quickActions) => quickActions.length
+);
+
+export const selectCustomQuickActionsCount = createReselectSelector(
+  [selectCustomQuickActions],
+  (customActions) => customActions.length
+);
+
+export const selectQuickActionCategories = createReselectSelector(
+  [selectUserQuickActions],
+  (quickActions) => {
+    const categories = new Set();
+    quickActions.forEach(action => categories.add(action.category));
+    return Array.from(categories);
+  }
+);
+
+// Export actions and reducer
 export const {
+  createQuickAction,
   addQuickAction,
   updateQuickAction,
   deleteQuickAction,

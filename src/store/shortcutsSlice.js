@@ -204,6 +204,22 @@ const shortcutsSlice = createSlice({
         state.shortcuts[shortcutIndex] = updateShortcutMetadata(state.shortcuts[shortcutIndex]);
       }
     },
+
+    updateActionParameters: (state, action) => {
+      const { shortcutId, actionId, parameters } = action.payload;
+      const shortcutIndex = state.shortcuts.findIndex(s => s.id === shortcutId);
+  
+      if (shortcutIndex >= 0) {
+        const actionIndex = state.shortcuts[shortcutIndex].actions.findIndex(a => a.id === actionId);
+        if (actionIndex >= 0) {
+          state.shortcuts[shortcutIndex].actions[actionIndex].parameters = {
+            ...state.shortcuts[shortcutIndex].actions[actionIndex].parameters,
+            ...parameters
+          };
+          state.shortcuts[shortcutIndex] = updateShortcutMetadata(state.shortcuts[shortcutIndex]);
+        }
+      }
+    },
     
     // Update shortcut trigger
     updateShortcutTrigger: (state, action) => {

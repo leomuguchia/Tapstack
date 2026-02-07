@@ -43,10 +43,19 @@ class ActionExecutor {
     const startTime = Date.now();
 
     try {
-      const registryEntry = actionRegistry[action.id];
+      // FIXED: Use action.actionId for registry lookup, not
+      const actionTypeId = action.actionId;
+      
+      console.log(`🔍 [ActionExecutor] Looking up action:`, {
+        instanceId: action.id,
+        actionTypeId: action.actionId,
+        finalLookupId: actionTypeId
+      });
+
+      const registryEntry = actionRegistry[actionTypeId];
 
       if (!registryEntry) {
-        throw new Error(`Action "${action.id}" is not available`);
+        throw new Error(`Action "${actionTypeId}" is not available`);
       }
 
       const executor =
@@ -55,18 +64,19 @@ class ActionExecutor {
           : registryEntry.execute;
 
       if (typeof executor !== 'function') {
-        throw new Error(`No executor found for action "${action.id}"`);
+        throw new Error(`No executor found for action "${actionTypeId}"`);
       }
 
-      const resolvedParameters = this.resolveParameters(action.id, parameters);
+      // FIXED: Use actionTypeId for parameter resolution
+      const resolvedParameters = this.resolveParameters(actionTypeId, parameters);
 
-      console.log(`▶️ Executing action: ${action.id}`, resolvedParameters);
+      console.log(`▶️ Executing action: ${actionTypeId}`, resolvedParameters);
 
       const result = await executor(resolvedParameters);
       const executionTime = Date.now() - startTime;
 
       this.logActionToHistory({
-        actionId: action.id,
+        actionId: actionTypeId,
         actionName: action.name,
         parameters: resolvedParameters,
         success: true,
@@ -81,10 +91,10 @@ class ActionExecutor {
       const executionTime = Date.now() - startTime;
       const message = error.message || 'Unknown error';
 
-      console.error(`❌ Failed to execute action ${action.id}:`, error);
+      console.error(`❌ Failed to execute action ${action.actionId}:`, error);
 
       this.logActionToHistory({
-        actionId: action.id,
+        actionId: action.actionId,
         actionName: action.name,
         parameters,
         success: false,
@@ -97,8 +107,8 @@ class ActionExecutor {
       return {
         success: false,
         error: this.getUserFriendlyError(action, error),
-        actionId: action.id,
-        actionName: this.getActionDisplayName(action.id),
+        actionId: action.actionId,
+        actionName: this.getActionDisplayName(action.actionId),
         executionTime
       };
     }
@@ -119,9 +129,15 @@ class ActionExecutor {
         await this.delay(step.delayBefore);
       }
 
-      const actionDef = this.getActionDefinition(step.actionId);
+      // FIXED: Pass the whole step object, not just actionId
+      console.log(`🔍 [Shortcut] Processing step ${i + 1}:`, {
+        instanceId: step.id,
+        actionType: step.actionId,
+        name: step.name
+      });
+
       const result = await this.executeAction(
-        actionDef,
+        step, // Pass the whole step object
         step.parameters,
         { shortcutId: shortcut.id }
       );
@@ -149,19 +165,31 @@ class ActionExecutor {
 
   // ===== HELPERS =====
 
-  getActionDefinition(actionId) {
+  getActionDefinition(action) {
+    // Handle both object and string
+    const actionId = typeof action === 'object' ? (action.actionId) : action;
     const meta = actionMetadata[actionId];
+    
     return meta
-      ? { id: actionId, name: meta.name, category: meta.category }
-      : { id: actionId, name: this.getActionDisplayName(actionId) };
+      ? { 
+          id: actionId, 
+          name: meta.name, 
+          category: meta.category 
+        }
+      : { 
+          id: actionId, 
+          name: this.getActionDisplayName(actionId) 
+        };
   }
 
   getActionDisplayName(actionId) {
+    if (!actionId) return 'Unknown Action';
     return actionId.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   }
 
   getUserFriendlyError(action, error) {
-    return `${action.name} couldn't be completed. ${error.message}`;
+    const actionName = action.name || this.getActionDisplayName(action.actionId);
+    return `${actionName} couldn't be completed. ${error.message}`;
   }
 
   logActionToHistory(entry) {

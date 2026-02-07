@@ -36,6 +36,7 @@ export default function NewShortcutScreen({ navigation }) {
   // Actions in this shortcut (these are action instances with parameters)
   const [actions, setActions] = useState([]);
 
+  console.log(actions)
   const handleSaveShortcut = () => {
     if (!name.trim()) {
       Alert.alert('Missing Name', 'Please enter a name for your shortcut');
@@ -85,7 +86,7 @@ export default function NewShortcutScreen({ navigation }) {
         // When an action is selected from the picker, we get its configuration
         const newActionInstance = {
           id: generateId('tempact'),
-          actionId: selectedAction.id,
+          actionId: selectedAction.actionId,
           title: selectedAction.name,
           icon: selectedAction.icon,
           color: selectedAction.color,

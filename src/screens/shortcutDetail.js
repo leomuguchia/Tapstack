@@ -126,9 +126,7 @@ export default function ShortcutDetailScreen({ route, navigation }) {
 
   const getActionType = (actionId) => {
     const typeMap = {
-      'call_make': 'Phone Call',
       'email_send': 'Email',
-      'sms_send': 'SMS',
       'notification_show': 'Notification',
       'vibrate_device': 'Vibration',
       'wait_delay': 'Delay',

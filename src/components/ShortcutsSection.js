@@ -34,6 +34,7 @@ export default function ShortcutsSection({ navigation }) {
   const { toast, showToast, hideToast } = useToast();
   const allShortcuts = useSelector(selectVisibleShortcuts);
   
+  // console.log("all shortcuts", allShortcuts)
   const sortedShortcuts = [...allShortcuts].sort((a, b) => {
     if (a.metadata.favorite && !b.metadata.favorite) return -1;
     if (!a.metadata.favorite && b.metadata.favorite) return 1;

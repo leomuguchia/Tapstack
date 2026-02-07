@@ -9,7 +9,7 @@ import {
   SectionList,
   Alert,
 } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import { useSelector } from 'react-redux';
 import ActionPickerItem from '../components/ActionPickerItem';
@@ -90,8 +90,13 @@ export default function AddActionScreen({ navigation, route }) {
   }, [availableActions, query, filter]);
 
   const handleSelectAction = (action) => {
-    onSelectAction(action);
-    navigation.goBack();
+    navigation.navigate('ConfigureAction', {
+      action: action,
+      onConfigured: (configuredAction) => {
+        onSelectAction(configuredAction);
+        navigation.goBack();
+      }
+    });
   };
 
   const renderItem = ({ item }) => (
@@ -139,7 +144,7 @@ export default function AddActionScreen({ navigation, route }) {
       </View>
 
       <View style={[styles.search, { backgroundColor: theme.bgCard }]}>
-        <MaterialCommunityIcons name="search" size={18} color={theme.textMuted} />
+        <Ionicons name="search" size={18} color={theme.textMuted} />
         <TextInput
           value={query}
           onChangeText={setQuery}

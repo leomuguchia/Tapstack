@@ -18,6 +18,7 @@ import LoadingCapabilitiesScreen from '../screens/loadingCapabilities';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import HistoryScreen from '../screens/historyScreen';
 import ShortcutDetailScreen from '../screens/shortcutDetail';
+import ConfigureActionScreen from '../screens/actionConfig';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -128,6 +129,7 @@ export default function AppNavigator() {
       <Stack.Screen name="Settings" component={SettingsScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="History" component={HistoryScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="ShortcutDetail" component={ShortcutDetailScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="ConfigureAction" component={ConfigureActionScreen} options={{ presentation: 'modal'}} />
     </Stack.Navigator>
   );
 }

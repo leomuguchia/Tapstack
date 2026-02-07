@@ -40,6 +40,21 @@ export const systemActions = {
     
     return { executed: true, duration, usedPattern: !!pattern };
   },
+
+  async executeDelay(parameters) {
+    const { seconds = 2 } = parameters;
+    const milliseconds = seconds * 1000;
+    
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({ 
+          executed: true, 
+          message: `Delayed for ${seconds} seconds`,
+          duration: seconds 
+        });
+      }, milliseconds);
+    });
+  },
   
   async executeShowNotification(parameters) {
     const { 
